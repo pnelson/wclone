@@ -36,11 +36,17 @@ var refTagAttrs = map[string]string{
 var errRefNode = errors.New("wclone: node is not ref")
 
 func main() {
+	help := flag.Bool("h", false, "show this usage information")
+	flag.Usage = func() { usage(os.Stderr); os.Exit(2) }
 	flag.Parse()
 	args := flag.Args()
+	if *help {
+		usage(os.Stdout)
+		return
+	}
 	if len(args) != 1 {
 		fmt.Fprintln(os.Stderr, "wclone: invalid arguments")
-		flag.PrintDefaults()
+		usage(os.Stderr)
 		os.Exit(1)
 	}
 	err := clone(args[0])
@@ -48,6 +54,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+// usage writes usage information to w.
+func usage(w io.Writer) {
+	fmt.Fprintln(w, "Usage: wclone [options] <url>")
+	flag.PrintDefaults()
 }
 
 // clone does the best it can to download a single web page
